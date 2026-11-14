@@ -1,0 +1,52 @@
+IA NA AGROPECUÁRIA — 35 SLIDES · TRÊS BLOCOS
+Extraia tudo e abra index.html. Setas navegam, F abre tela cheia e R abre
+o roteiro. Fontes estão nos rodapés e no menu Fontes.
+
+MISSÃO · ALUNO 3
+Pilote livremente por 30 s. WASD/setas movem, Q/E giram, R/F sobem/descem. Use também
+GameSir em Modo 2: analógico esquerdo gira e muda altitude. Direito
+avança, recua e desliza para os lados. X marca, Y troca a câmera.
+Teclado: X ou Espaço marca, C troca a câmera. O botão Som silencia as hélices.
+Para o GameSir, conecte no modo PC/XInput e pressione um botão no
+Chrome ou Edge antes de começar. Depois decole com IA e avance para o
+relatório. A IA passa por uma inicialização visual, voo em terceira pessoa e
+POV de inspeção. O mapa traça as duas rotas e registra detecções.
+Clique em Conferir registros do piloto para simular o processamento.
+Os tempos de voo são da simulação e os custos e parâmetros de campo são fictícios.
+
+VÍDEOS EM PORTUGUÊS
+O botão 1 toca MP4 local. O botão 2 abre o vídeo original. Separe os
+trechos no ensaio. Os vídeos externos podem ser mais longos.
+midia/videos/01-drone.mp4 (até 90 s)
+midia/videos/02-pecuaria.mp4 (até 90 s)
+midia/videos/03-embrapa.mp4 (até 60 s)
+midia/videos/04-agroapi.mp4 (trecho sugerido de até 60 s)
+As fotos documentais usam links externos. As ilustrações incluídas
+servem de alternativa quando a conexão estiver indisponível.
+
+Clique em Tela cheia no simulador para maximizar somente a missão. Esc sai.
+
+APRESENTAÇÃO NARRADA
+Abra index.html e clique em Ouvir apresentação. A fala começa no slide atual,
+em português, no ritmo Normal. Há opções para reduzir a velocidade, pausar,
+repetir, ler a transcrição e desligar o avanço automático. Para voltar ao
+começo, use o botão AGRO IA. A voz depende do navegador e do sistema.
+Os slides de vídeo têm explicações narradas. Para assistir ao vídeo original
+ou jogar a simulação, pause a voz e use os controles do slide.
+
+A narração agora começa no ritmo Normal. Abra Ajustes na faixa da narração
+para trocar de voz, reduzir o ritmo ou desativar o avanço automático.
+Em tela cheia, a faixa compacta ocupa o lugar do cabeçalho.
+
+Na apresentação narrada, a voz dá o contexto antes de abrir o MP4 local
+ocupando a tela. Ao fim do arquivo, o player fecha e a narração avança
+se a opção de avanço automático estiver ligada. Coloque os MP4 na pasta
+midia/videos com os nomes indicados acima. Se o arquivo já estiver em
+outra pasta, selecione-o no player. O botão do YouTube abre a fonte
+original separadamente. Se o navegador bloquear o áudio automático,
+clique em Reproduzir vídeo. Para exibir sem as barras do navegador, use
+Tela cheia do navegador.
+
+Nos slides com vídeo, clique na prévia. Se houver MP4 na pasta indicada,
+ele abre primeiro. Se faltar o arquivo, o site tenta o YouTube nos vídeos
+que têm link direto. O link original fica abaixo da prévia.
