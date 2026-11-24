@@ -6,7 +6,7 @@
   <meta name="description" content="Pedro Max apresenta a validação da migração do e-Cidade para PHP 8.5.">
   <meta name="theme-color" content="#102b31">
   <title>e-Cidade | Validação no PHP 8.5</title>
-  <link rel="stylesheet" href="estilo.css?v=anexos">
+  <link rel="stylesheet" href="estilo.css?v=codigo-completo">
   <script src="apresentacao-pages.js?v=anexos" type="module"></script>
 </head>
 <body>
@@ -43,15 +43,68 @@
       <p class="intro">O <code>parse_str</code> lê parâmetros das telas, como <code>ano=2026&amp;mes=11</code>. Meu auditor abre os fontes e confere se as chamadas têm os dois argumentos exigidos pelo PHP 8.</p>
       <div class="codigo-grid">
         <div class="snippet" id="codigo-auditor">
-          <div class="snippet-head"><strong>Trecho de auditar-parse-str.php</strong><a href="https://github.com/Segunddo/e-cidade/blob/35d7cf32a5f1a543a9dfec14b404fb6c4c24c449/ferramentas/php85-compatibilidade/auditar-parse-str.php">Ver código no GitHub</a></div>
-          <pre><code><span class="c-fn">function</span> parse_str_calls($source) {
-    <mark>$raw=token_get_all($source);</mark>
-    $tokens=array();$line=1;
-    <span class="c-fn">foreach</span>($raw as $token) {
-        <span class="c-fn">if</span>(is_array($token)) {
-            $line=$token[2];
-            <span class="c-comment">// O restante analisa os argumentos.</span></code></pre>
-          <p class="snippet-caption">A linha destacada separa o código em partes. Assim o auditor consegue localizar chamadas, contar argumentos e informar a linha.</p>
+          <div class="snippet-head"><strong id="auditor-fonte">auditar-parse-str.php · Código completo</strong><a href="https://github.com/Segunddo/e-cidade/blob/35d7cf32a5f1a543a9dfec14b404fb6c4c24c449/ferramentas/php85-compatibilidade/auditar-parse-str.php">Ver no GitHub</a></div>
+          <pre class="audit-source" tabindex="0" aria-labelledby="auditor-fonte"><code><span class="audit-line" data-line="1">&lt;?php</span>
+<span class="audit-line" data-line="2">/* Leitura lexical. Entrada JSONL com path e source_base64, saida sem fonte. */</span>
+<span class="audit-line" data-line="3">function parse_str_calls($source) {</span>
+<span class="audit-line" data-line="4"><mark>    $raw=token_get_all($source);</mark></span>
+<span class="audit-line" data-line="5">    $tokens=array();$line=1;</span>
+<span class="audit-line" data-line="6">    foreach($raw as $token) {</span>
+<span class="audit-line" data-line="7">        if(is_array($token)) {</span>
+<span class="audit-line" data-line="8">            $line=$token[2];</span>
+<span class="audit-line" data-line="9">            if(!in_array($token[0],array(T_WHITESPACE,T_COMMENT,T_DOC_COMMENT),true)) {</span>
+<span class="audit-line" data-line="10">                $tokens[]=array($token[0],$token[1],$line);</span>
+<span class="audit-line" data-line="11">            }</span>
+<span class="audit-line" data-line="12">            $line+=substr_count($token[1],&quot;\n&quot;);</span>
+<span class="audit-line" data-line="13">        } else {</span>
+<span class="audit-line" data-line="14">            $tokens[]=array(null,$token,$line);</span>
+<span class="audit-line" data-line="15">            $line+=substr_count($token,&quot;\n&quot;);</span>
+<span class="audit-line" data-line="16">        }</span>
+<span class="audit-line" data-line="17">    }</span>
+<span class="audit-line" data-line="18">    $calls=array();</span>
+<span class="audit-line" data-line="19">    foreach($tokens as $index=&gt;$token) {</span>
+<span class="audit-line" data-line="20">        if($token[0]===null || strtolower(ltrim($token[1],&#39;\\&#39;))!==&#39;parse_str&#39;) {continue;}</span>
+<span class="audit-line" data-line="21">        $previous=$index&gt;0?$tokens[$index-1]:null;</span>
+<span class="audit-line" data-line="22">        if($previous &amp;&amp; $previous[1]===&#39;&amp;&#39; &amp;&amp; $index&gt;1 &amp;&amp; $tokens[$index-2][0]===T_FUNCTION) {continue;}</span>
+<span class="audit-line" data-line="23">        if($previous &amp;&amp; (in_array($previous[1],array(&#39;-&gt;&#39;,&#39;?-&gt;&#39;,&#39;::&#39;),true) ||</span>
+<span class="audit-line" data-line="24">            in_array($previous[0],array(T_FUNCTION,T_NEW),true))) {continue;}</span>
+<span class="audit-line" data-line="25">        if(!isset($tokens[$index+1]) || $tokens[$index+1][1]!==&#39;(&#39;) {continue;}</span>
+<span class="audit-line" data-line="26">        $depth=1;$arguments=0;$segment=false;$closed=false;$dynamic=false;</span>
+<span class="audit-line" data-line="27">        for($j=$index+2;$j&lt;count($tokens);$j++) {</span>
+<span class="audit-line" data-line="28">            $part=$tokens[$j];</span>
+<span class="audit-line" data-line="29">            if($part[0]!==null) {</span>
+<span class="audit-line" data-line="30">                $segment=true;</span>
+<span class="audit-line" data-line="31">                if($depth===1 &amp;&amp; $part[0]===T_ELLIPSIS) {$dynamic=true;}</span>
+<span class="audit-line" data-line="32">                // Interpolacao de string possui abertura tokenizada.</span>
+<span class="audit-line" data-line="33">                if(in_array($part[0],array(T_CURLY_OPEN,T_DOLLAR_OPEN_CURLY_BRACES),true)) {$depth++;}</span>
+<span class="audit-line" data-line="34">                continue;</span>
+<span class="audit-line" data-line="35">            }</span>
+<span class="audit-line" data-line="36">            if(in_array($part[1],array(&#39;(&#39;,&#39;[&#39;,&#39;{&#39;),true)) {$depth++;$segment=true;continue;}</span>
+<span class="audit-line" data-line="37">            if(in_array($part[1],array(&#39;)&#39;,&#39;]&#39;,&#39;}&#39;),true)) {</span>
+<span class="audit-line" data-line="38">                $depth--;</span>
+<span class="audit-line" data-line="39">                if($depth===0) {$arguments+=$segment?1:0;$closed=true;break;}</span>
+<span class="audit-line" data-line="40">                $segment=true;continue;</span>
+<span class="audit-line" data-line="41">            }</span>
+<span class="audit-line" data-line="42">            if($part[1]===&#39;,&#39; &amp;&amp; $depth===1) {$arguments+=$segment?1:0;$segment=false;continue;}</span>
+<span class="audit-line" data-line="43">            $segment=true;</span>
+<span class="audit-line" data-line="44">        }</span>
+<span class="audit-line" data-line="45">        $calls[]=array(&#39;line&#39;=&gt;$token[2],&#39;arguments&#39;=&gt;$arguments,&#39;closed&#39;=&gt;$closed,&#39;unpacked&#39;=&gt;$dynamic);</span>
+<span class="audit-line" data-line="46">    }</span>
+<span class="audit-line" data-line="47">    return $calls;</span>
+<span class="audit-line" data-line="48">}</span>
+<span class="audit-line" data-line="49">if(realpath($_SERVER[&#39;SCRIPT_FILENAME&#39;])===__FILE__) {</span>
+<span class="audit-line" data-line="50">    while(($line=fgets(STDIN))!==false) {</span>
+<span class="audit-line" data-line="51">        try {</span>
+<span class="audit-line" data-line="52">            $entry=json_decode($line,true,512,JSON_THROW_ON_ERROR);</span>
+<span class="audit-line" data-line="53">            $source=base64_decode($entry[&#39;source_base64&#39;],true);</span>
+<span class="audit-line" data-line="54">            if($source===false) {throw new RuntimeException(&#39;Base64 invalido&#39;);}</span>
+<span class="audit-line" data-line="55">            echo json_encode(array(&#39;path&#39;=&gt;$entry[&#39;path&#39;],&#39;calls&#39;=&gt;parse_str_calls($source)),JSON_THROW_ON_ERROR),&quot;\n&quot;;</span>
+<span class="audit-line" data-line="56">        } catch(Throwable $error) {</span>
+<span class="audit-line" data-line="57">            fwrite(STDERR,&#39;Falha na leitura lexical: &#39;.$error-&gt;getMessage().&quot;\n&quot;);exit(2);</span>
+<span class="audit-line" data-line="58">        }</span>
+<span class="audit-line" data-line="59">    }</span>
+<span class="audit-line" data-line="60">}</span></code></pre>
+          <p class="snippet-caption">60 linhas. O trecho destacado separa o código em partes para localizar cada chamada e contar seus argumentos.</p>
         </div>
         <div class="demo">
           <h3>Rodar no PHP 8.5</h3>

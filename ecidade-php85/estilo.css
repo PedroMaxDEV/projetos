@@ -86,6 +86,9 @@ nav a:hover { color: var(--green); text-decoration: underline; }
 .snippet-head a { color: var(--mint); }
 .snippet pre { padding: 1rem; font-size: .98rem; }
 .snippet pre code { font-size: inherit; }
+.snippet .audit-source { max-height: 27rem; overflow: auto; padding-left: 3.7rem; }
+.audit-line { position: relative; }
+.audit-line::before { content: attr(data-line); position: absolute; right: calc(100% + .85rem); color: #a7c1bd; }
 .snippet mark { color: #f4ffda; background: #305a43; border-radius: 2px; }
 .c-fn { color: #95dcff; }
 .c-string { color: var(--peach); }
