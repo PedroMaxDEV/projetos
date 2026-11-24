@@ -2,3 +2,4 @@ php-wasm 0.2.0, Sean Morris e colaboradores.
 Distribuído no pacote oficial do npm: https://www.npmjs.com/package/php-wasm/v/0.2.0
 Código-fonte: https://github.com/seanmorris/php-wasm
 Arquivos de licença distribuídos com o pacote: LICENSE e LICENSE-GPL.
+Na copia para GitHub Pages, _Event.mjs foi renomeado para PhpEvent.mjs e os dois imports foram ajustados.
