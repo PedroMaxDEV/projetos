@@ -6,8 +6,8 @@
   <meta name="description" content="Pedro Max apresenta a validação da migração do e-Cidade para PHP 8.5.">
   <meta name="theme-color" content="#102b31">
   <title>e-Cidade | Validação no PHP 8.5</title>
-  <link rel="stylesheet" href="estilo.css">
-  <script src="apresentacao-pages.js" type="module"></script>
+  <link rel="stylesheet" href="estilo.css?v=anexos">
+  <script src="apresentacao-pages.js?v=anexos" type="module"></script>
 </head>
 <body>
   <a class="skip" href="#inicio">Ir para a apresentação</a>
@@ -89,6 +89,7 @@
           <h3 id="cinco-erros-titulo">Cinco relatórios com erro 500 no PHP 8.5</h3>
           <p>O PHP 7.4 gerou os cinco PDFs. Os logs do 8.5 mostram onde o código parou.</p>
           <p>Abra um arquivo para ver a linha destacada e o que conferir antes de corrigir.</p>
+          <p><a href="#conferir-correcao">Anexar um PHP corrigido para conferir</a></p>
           <div class="falhas" aria-labelledby="cinco-erros-titulo">
             <details class="falha" name="pontos-falha">
               <summary><code>con2_contasrecdesp002.php</code><span>Contagem de resultados</span></summary>
@@ -144,6 +145,21 @@
         </div>
         <div class="links"><a class="primary" href="https://github.com/Segunddo/e-cidade/pull/48">PR #48 em rascunho</a><a class="outline" href="https://github.com/Segunddo/e-cidade/issues/47">Checklist dos 5 relatórios · Issue #47</a></div>
       </div>
+    </section>
+    <section id="conferir-correcao" class="section wrap" aria-labelledby="conferir-titulo">
+      <h2 id="conferir-titulo">Conferir um arquivo corrigido</h2>
+      <p class="intro">Anexe o PHP que você editou. A página usa o PHP 8.5 no navegador para analisar a sintaxe, conferir chamadas de <code>parse_str</code> e localizar expressões destacadas nos cinco relatórios.</p>
+      <form id="conferir-form" class="demo">
+        <label for="conferir-arquivos"><strong>Arquivos PHP corrigidos</strong></label>
+        <p id="conferir-ajuda">Selecione até sete arquivos .php de até 2 MB cada, com os nomes originais. Se a correção estiver em contabilidade ou dívida, envie a biblioteca alterada (<code>db_libcontabilidade.php</code> ou <code>db_divida_classe.php</code>). Os arquivos ficam no seu navegador.</p>
+        <div class="conferir-controles">
+          <input id="conferir-arquivos" type="file" accept=".php" multiple required aria-describedby="conferir-ajuda">
+          <button id="conferir-enviar" class="primary" type="submit">Conferir arquivos</button>
+        </div>
+        <p id="conferir-status" role="status"></p>
+        <div id="conferir-resultados"></div>
+      </form>
+      <p class="amostra-nota"><strong>Para confirmar a correção do erro 500</strong>, rode o relatório no Docker com PHP 8.5, usando os mesmos dados e parâmetros, e compare o PDF com o do PHP 7.4.</p>
     </section>
   </main>
 </body>

@@ -177,3 +177,12 @@ nav a:hover { color: var(--green); text-decoration: underline; }
   .hero-grid, .codigo-grid, .explica-codigo { display: block; }
   .hero-evidence, .demo, .erros-lista { margin-top: 1rem; }
 }
+
+
+#cinco-erros a[href="#conferir-correcao"] { color: var(--green); font-weight: 700; }
+.conferir-controles { display: flex; align-items: center; flex-wrap: wrap; gap: .85rem; }
+.conferir-controles input { max-width: 100%; }
+#conferir-status:empty { display: none; }
+.conferir-item { border-top: 1px solid var(--line); margin-top: 1rem; padding-top: .85rem; overflow-wrap: anywhere; }
+.conferir-item h3 { margin: 0; font-size: 1.05rem; }
+.conferir-item p { margin: .35rem 0 0; }

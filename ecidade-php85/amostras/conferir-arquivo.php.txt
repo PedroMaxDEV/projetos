@@ -1,0 +1,75 @@
+<?php
+$_SERVER['SCRIPT_FILENAME'] = '/conferir-arquivo.php';
+require_once '/auditar-parse-str.php';
+
+$significantTokens = static function (array $tokens): array
+{
+    $significant = [];
+    $line = 1;
+    foreach ($tokens as $token) {
+        if (is_array($token)) {
+            [$kind, $value, $line] = $token;
+            if (!in_array($kind, [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT, T_OPEN_TAG], true)) {
+                $significant[] = [$value, $line];
+            }
+        } else {
+            $value = $token;
+            $significant[] = [$value, $line];
+        }
+        $line += substr_count($value, "\n");
+    }
+    return $significant;
+};
+
+$file = file_get_contents('/anexo-nome.txt');
+$source = file_get_contents('/anexo-codigo.txt');
+if ($file === false || $source === false) {
+    throw new RuntimeException('Falha ao ler o arquivo.');
+}
+
+$points = [
+    'db_libcontabilidade.php' => 'pg_num_rows($result)',
+    'cad2_loteam002.php' => 'pg_numrows($result)',
+    'agu2_relconsumo002.php' => 'pg_numrows($rSql)',
+    'db_divida_classe.php' => '$aDataDebitos[0] - $iInd',
+];
+$dependencies = [
+    'con2_contasrecdesp002.php' => 'db_libcontabilidade.php',
+    'orc2_desppessoal002.php' => 'db_libcontabilidade.php',
+    'div2_resumogeraldivida002.php' => 'db_divida_classe.php',
+];
+
+$result = [
+    'php' => PHP_VERSION,
+    'error' => null,
+    'calls' => [],
+    'expression' => $points[$file] ?? null,
+    'lines' => [],
+    'dependency' => $dependencies[$file] ?? null,
+];
+
+try {
+    $parsed = token_get_all($source, TOKEN_PARSE);
+    $kinds = array_map(static fn ($token) => is_array($token) ? $token[0] : null, $parsed);
+    if (!in_array(T_OPEN_TAG, $kinds, true) && !in_array(T_OPEN_TAG_WITH_ECHO, $kinds, true)) {
+        throw new RuntimeException('Nenhum trecho PHP encontrado.');
+    }
+    $result['calls'] = parse_str_calls($source);
+    if ($result['expression'] !== null) {
+        $tokens = $significantTokens($parsed);
+        $values = array_column($tokens, 0);
+        $expected = array_column($significantTokens(token_get_all('<?php ' . $result['expression'])), 0);
+        foreach (array_keys($values, $expected[0], true) as $index) {
+            if (array_slice($values, $index, count($expected)) === $expected) {
+                $result['lines'][] = $tokens[$index][1];
+            }
+        }
+        $result['lines'] = array_values(array_unique($result['lines']));
+    }
+} catch (ParseError $error) {
+    $result['error'] = 'Linha ' . $error->getLine() . ' — ' . $error->getMessage();
+} catch (RuntimeException $error) {
+    $result['error'] = $error->getMessage();
+}
+
+echo json_encode($result, JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE);
