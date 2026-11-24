@@ -29,7 +29,7 @@ async function readAsset(name, type) {
 let prepared;
 async function prepareAudit() {
   const [{ PhpWeb }, wrapper, ...documents] = await Promise.all([
-    import('./vendor/php-wasm/PhpWeb.mjs'),
+    import('./vendor/php-wasm-pages/PhpWeb.mjs'),
     readAsset('rodar-auditoria.php', 'text'),
     ...['auditar-parse-str.php', ...files].map(name => readAsset(name, 'bytes')),
   ]);
