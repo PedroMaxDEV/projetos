@@ -1,0 +1,18 @@
+<?php
+$_SERVER['SCRIPT_FILENAME'] = '/rodar-auditoria.php';
+require_once '/auditar-parse-str.php';
+
+$file = file_get_contents('/arquivo-selecionado.txt');
+if ($file === false || !preg_match('/^[a-z0-9_]+\.php$/D', $file)) {
+    throw new RuntimeException('Arquivo de amostra inválido.');
+}
+$source = file_get_contents('/' . $file);
+if ($source === false) {
+    throw new RuntimeException('Não foi possível ler a amostra.');
+}
+
+echo json_encode([
+    'php' => PHP_VERSION,
+    'arquivo' => $file,
+    'chamadas' => parse_str_calls($source),
+], JSON_THROW_ON_ERROR);

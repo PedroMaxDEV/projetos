@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Pedro Max apresenta a validação da migração do e-Cidade para PHP 8.5.">
+  <meta name="theme-color" content="#102b31">
+  <title>e-Cidade | Validação no PHP 8.5</title>
+  <link rel="stylesheet" href="estilo.css">
+  <script src="apresentacao.js" type="module"></script>
+</head>
+<body>
+  <a class="skip" href="#inicio">Ir para a apresentação</a>
+  <header class="topo">
+    <div class="topo-inner">
+      <a class="marca" href="#inicio">e-Cidade<span> / PHP 8.5</span></a>
+      <nav aria-label="Seções da apresentação">
+        <a href="#inicio">Minha parte</a><a href="#auditoria">Rodar auditor</a><a href="#cinco-erros">Os 5 erros</a>
+      </nav>
+    </div>
+  </header>
+  <main id="inicio">
+    <section class="hero" aria-labelledby="titulo">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="kicker">Pedro Max · Engenharia de Software</p>
+          <h1 id="titulo">O que eu validei na migração</h1>
+          <p class="lead">Criei um auditor e testes para conferir a leitura de parâmetros, a geração de PDFs e o tratamento de JSON no PHP&nbsp;8.5.</p>
+          <a class="primary" href="#auditoria">Mostrar meu código rodando</a>
+        </div>
+        <figure class="hero-evidence">
+          <figcaption>36 relatórios comparados no Docker</figcaption>
+          <div class="big-stat">31<span> iguais</span></div>
+          <div class="bar" aria-hidden="true"><span></span><span></span></div>
+          <p class="legend"><span>31 PDFs iguais</span><a href="#cinco-erros">Ver os 5 erros</a></p>
+        </figure>
+      </div>
+    </section>
+
+    <section id="auditoria" class="section wrap" aria-labelledby="auditoria-titulo">
+      <p class="kicker">Demonstração</p>
+      <h2 id="auditoria-titulo">Auditoria dos cinco relatórios com erro</h2>
+      <p class="intro">O <code>parse_str</code> lê parâmetros das telas, como <code>ano=2026&amp;mes=11</code>. Meu auditor abre os fontes e confere se as chamadas têm os dois argumentos exigidos pelo PHP 8.</p>
+      <div class="codigo-grid">
+        <div class="snippet" id="codigo-auditor">
+          <div class="snippet-head"><strong>Trecho de auditar-parse-str.php</strong><a href="https://github.com/Segunddo/e-cidade/blob/35d7cf32a5f1a543a9dfec14b404fb6c4c24c449/ferramentas/php85-compatibilidade/auditar-parse-str.php">Ver código no GitHub</a></div>
+          <pre><code><span class="c-fn">function</span> parse_str_calls($source) {
+    <mark>$raw=token_get_all($source);</mark>
+    $tokens=array();$line=1;
+    <span class="c-fn">foreach</span>($raw as $token) {
+        <span class="c-fn">if</span>(is_array($token)) {
+            $line=$token[2];
+            <span class="c-comment">// O restante analisa os argumentos.</span></code></pre>
+          <p class="snippet-caption">A linha destacada separa o código em partes. Assim o auditor consegue localizar chamadas, contar argumentos e informar a linha.</p>
+        </div>
+        <div class="demo">
+          <h3>Rodar no PHP 8.5</h3>
+          <p>O auditor do PR lê <a href="#cinco-erros">os cinco arquivos dos relatórios que falharam</a>.</p>
+          <button class="primary" id="rodar" type="button">Rodar auditor</button>
+          <p id="exec-status" role="status" aria-live="polite">Pronto para ler cinco arquivos. A primeira execução baixa o PHP do navegador.</p>
+          <div id="exec-andamento" class="exec-andamento" hidden>
+            <progress id="exec-progresso" value="0" max="5" aria-label="Arquivos auditados"></progress>
+            <span id="exec-contagem" aria-hidden="true">0 / 5</span>
+          </div>
+          <div id="exec-saida" hidden>
+            <table class="exec-tabela">
+              <caption>Chamadas encontradas nesta execução</caption>
+              <thead><tr><th scope="col">Arquivo</th><th scope="col">Linha</th><th scope="col">Argumentos</th></tr></thead>
+              <tbody id="exec-linhas"></tbody>
+            </table>
+          </div>
+          <noscript><p>Ative o JavaScript para rodar o PHP nesta página.</p></noscript>
+        </div>
+      </div>
+      <p class="amostra-nota">Esta leitura confere chamadas de <code>parse_str</code>. O erro 500 apareceu no teste que tentou gerar os PDFs no Docker.</p>
+    </section>
+
+    <section id="resultados" class="section contraste" aria-labelledby="resultados-titulo">
+      <div class="wrap">
+        <p class="kicker">Validação no laboratório</p>
+        <h2 id="resultados-titulo">O que ficou comprovado</h2>
+        <p class="intro">Comparei PHP 7.4 e 8.5 no Docker, com a mesma cópia do banco e os mesmos relatórios. A amostra de regressão do MCP passou. Repeti os cinco erros para verificar que voltavam a ocorrer.</p>
+        <dl class="resultados">
+          <div><dt>7.768</dt><dd>chamadas diretas de <code>parse_str</code> em 7.729 arquivos candidatos</dd></div>
+          <div><dt>557</dt><dd>verificações de FPDF e JSON com saídas equivalentes</dd></div>
+          <div><dt>31 de 36</dt><dd>relatórios com PDFs idênticos na comparação ampliada</dd></div>
+        </dl>
+        <div class="resumo-erros" id="cinco-erros">
+          <h3 id="cinco-erros-titulo">Cinco relatórios com erro 500 no PHP 8.5</h3>
+          <p>O PHP 7.4 gerou os cinco PDFs. Os logs do 8.5 mostram onde o código parou.</p>
+          <p>Abra um arquivo para ver a linha destacada e o que conferir antes de corrigir.</p>
+          <div class="falhas" aria-labelledby="cinco-erros-titulo">
+            <details class="falha" name="pontos-falha">
+              <summary><code>con2_contasrecdesp002.php</code><span>Contagem de resultados</span></summary>
+              <div class="falha-corpo">
+                <p class="falha-local">Ponto observado no log · <a href="https://github.com/Segunddo/e-cidade/blob/111125fb5ff45e3386b436344245754e83774676/ecidade/libs/db_libcontabilidade.php#L4989">libs/db_libcontabilidade.php:4989</a></p>
+                <pre class="falha-codigo"><code>4988  $seq = 0;
+<mark>4989  for ($i = 0; $i &lt; pg_num_rows($result); $i++) {</mark>
+4990      db_fieldsmemory($result, $i);</code></pre>
+                <p><strong>O que conferir:</strong> Este relatório chama <code>db_planocontassaldo_desp_rec()</code>. Confira o conteúdo de <code>$result</code> antes da contagem e veja se a consulta registrou um erro.</p>
+              </div>
+            </details>
+            <details class="falha" name="pontos-falha">
+              <summary><code>orc2_desppessoal002.php</code><span>Contagem de resultados</span></summary>
+              <div class="falha-corpo">
+                <p class="falha-local">Ponto observado no log · <a href="https://github.com/Segunddo/e-cidade/blob/111125fb5ff45e3386b436344245754e83774676/ecidade/libs/db_libcontabilidade.php#L5355">libs/db_libcontabilidade.php:5355</a></p>
+                <pre class="falha-codigo"><code><mark>5355  for ($i = 0; $i &lt; pg_num_rows($result); $i++) {</mark>
+5356      db_fieldsmemory($result, $i);</code></pre>
+                <p><strong>O que conferir:</strong> O relatório chama <code>db_elementosaldo()</code>. Confira o retorno da consulta nessa função e compare a mensagem do log com a do outro relatório de contabilidade.</p>
+              </div>
+            </details>
+            <details class="falha" name="pontos-falha">
+              <summary><code>cad2_loteam002.php</code><span>Contagem de resultados</span></summary>
+              <div class="falha-corpo">
+                <p class="falha-local">Ponto observado no log · <a href="https://github.com/Segunddo/e-cidade/blob/111125fb5ff45e3386b436344245754e83774676/ecidade/cad2_loteam002.php#L179">cad2_loteam002.php:179</a></p>
+                <pre class="falha-codigo"><code>178  $result = db_query($sql);
+<mark>179  $numrows = pg_numrows($result);</mark>
+180  $matric = "";</code></pre>
+                <p><strong>O que conferir:</strong> A consulta está logo acima. Confira se <code>db_query($sql)</code> devolveu um resultado válido ou sinalizou uma falha.</p>
+              </div>
+            </details>
+            <details class="falha" name="pontos-falha">
+              <summary><code>agu2_relconsumo002.php</code><span>Contagem de resultados</span></summary>
+              <div class="falha-corpo">
+                <p class="falha-local">Ponto observado no log · <a href="https://github.com/Segunddo/e-cidade/blob/111125fb5ff45e3386b436344245754e83774676/ecidade/agu2_relconsumo002.php#L166">agu2_relconsumo002.php:166</a></p>
+                <pre class="falha-codigo"><code><mark>166  for($i = 0; $i &lt; pg_numrows($rSql); $i++) {</mark>
+167
+168    $oSql = db_utils::fieldsMemory($rSql, $i, true);</code></pre>
+                <p><strong>O que conferir:</strong> Localize a consulta que preenche <code>$rSql</code> e confira o retorno antes de entrar no laço.</p>
+              </div>
+            </details>
+            <details class="falha" name="pontos-falha">
+              <summary><code>div2_resumogeraldivida002.php</code><span>Cálculo de exercício</span></summary>
+              <div class="falha-corpo">
+                <p class="falha-local">Ponto observado no log · <a href="https://github.com/Segunddo/e-cidade/blob/111125fb5ff45e3386b436344245754e83774676/ecidade/classes/db_divida_classe.php#L2378">classes/db_divida_classe.php:2378</a></p>
+                <pre class="falha-codigo"><code>2377  for ($iInd=1; $iInd &lt; 4; $iInd++) {
+<mark>2378      $aExercicioPago[] = ($aDataDebitos[0] - $iInd);</mark>
+2379  }</code></pre>
+                <p><strong>O que conferir:</strong> Confira de onde vem <code>$aDataDebitos[0]</code>, o valor e seu tipo antes da subtração. Os logs localizam a falha nessa operação.</p>
+              </div>
+            </details>
+          </div>
+          <p>A causa de cada erro ainda precisa ser confirmada. Depois da correção, repetir o relatório nas duas versões.</p>
+        </div>
+        <div class="links"><a class="primary" href="https://github.com/Segunddo/e-cidade/pull/48">PR #48 em rascunho</a><a class="outline" href="https://github.com/Segunddo/e-cidade/issues/47">Checklist dos 5 relatórios · Issue #47</a></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
